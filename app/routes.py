@@ -1,5 +1,6 @@
 from app import app
 from flask import jsonify, make_response, abort, request
+from app.models import Orders 
 
 
 users = [
@@ -20,6 +21,8 @@ users = [
         'occupation': 'Manager'
     }
 ]
+
+ORDERS = Orders()
 
 
 
@@ -70,12 +73,18 @@ def update_user(name):
     user[0]['occupation'] = request.get_json()['occupation']
     return jsonify({'user': user[0]})
 
-@app.route('/args', methods=['POST'])
-def get_args():
+@app.route('/orders', methods=['POST', 'GET'])
+def order():
+    if request.method == 'POST':
+        order = {
+            "item": request.args.get('item'),
+            "quantity": request.args.get('quantity')        
+        }
+        ORDERS.add_order(order)
+        return jsonify(order), 201
+    else:
+        return jsonify({"orders": ORDERS.order_list})
 
-    user = {
-        "name": request.args.get('name'),
-        "age": request.args.get('age'),
-        "occupation": request.args.get('occupation')
-    }
-    return jsonify(user), 201
+@app.route('/')
+def index():
+    return 'Hello World'
