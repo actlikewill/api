@@ -30,3 +30,8 @@ def test_no_quantity(client):
 def test_no_item(client):
     response = client.post('api/v1/orders?quantity=1')
     assert b'sorry' in response.data
+
+def test_no_item(client):
+    response = client.post('api/v1/orders?quantity=3')
+    assert b'sorry' in response.data
+
