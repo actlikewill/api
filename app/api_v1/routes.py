@@ -39,13 +39,7 @@ api.add_resource(GetOrders, '/orders')
 def index():
     return render_template('index.html')
 
-@api_v1.route('/hello')
-def hello():
-    return "hello there"
 
-@api_v1.route('/hi')
-def hello():
-    return "hi there"
 
 
 
