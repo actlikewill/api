@@ -1,9 +1,13 @@
-from app import app
+"""
+This is the routes file for directing the user requests
+"""
+
 from flask import jsonify, make_response, abort, request
-from app.models import Orders 
+from app import app
+from app.models import Orders
 
 
-users = [
+USERS = [
     {
         'name': "Wilson",
         'age': 30,
@@ -25,46 +29,49 @@ users = [
 ORDERS = Orders()
 
 
-
-
 @app.route('/api/users', methods=['GET'])
 def get_users():
-    return jsonify({'users': users})
-
+    """GET users"""
+    return jsonify({'users': USERS})
 
 @app.route('/api/users/<string:name>', methods=['GET'])
 def get_user(name):
-    user = [user for user in users if user['name'] == name]
-    if len(user) == 0:
+    """GET individual users given the name"""
+    user = [user for user in USERS if user['name'] == name]
+    if not user:
         abort(404)
     return jsonify({'user': user[0]})
 
 @app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}))
+def not_found(e): #pylint: disable=unused-argument, invalid-name
+    """Yer basic 404 error handler"""
+    return make_response(jsonify({'error': 'Not found'})), 404
 
 @app.route('/api/users', methods=['POST'])
 def create_user():
+    """ POST users """
     user = {
         "name":request.get_json(force=True)['name'],
         "age":request.get_json(force=True)['age'],
         "occupation":request.get_json(force=True)['occupation']
     }
-    users.append(user)
+    USERS.append(user)
     return jsonify({"user": user}), 201
 
 @app.route('/api/users/<string:name>', methods=['DELETE'])
 def delete_user(name):
-    user = [user for user in users if user['name'] == name]
-    if len(user) == 0:
+    """DELETE users"""
+    user = [user for user in USERS if user['name'] == name]
+    if not user:
         abort(404)
-    users.remove(user[0])
+    USERS.remove(user[0])
     return jsonify({'result': True})
 
 @app.route('/api/users/<string:name>', methods=['PUT'])
 def update_user(name):
-    user = [user for user in users if user['name'] == name]
-    if len(name) == 0:
+    """PUT users"""
+    user = [user for user in USERS if user['name'] == name]
+    if not user:
         abort(404)
     if not request.json:
         abort(400)
@@ -74,17 +81,19 @@ def update_user(name):
     return jsonify({'user': user[0]})
 
 @app.route('/orders', methods=['POST', 'GET'])
-def order():
+def my_order():
+    """GET orders"""
     if request.method == 'POST':
         order = {
             "item": request.args.get('item'),
-            "quantity": request.args.get('quantity')        
+            "quantity": request.args.get('quantity')
         }
         ORDERS.add_order(order)
         return jsonify(order), 201
-    else:
-        return jsonify({"orders": ORDERS.order_list})
+    return jsonify({"orders": ORDERS.order_list})
 
 @app.route('/')
 def index():
-    return 'Hello World'
+    """GET index"""
+    user_agent = request.headers.get('User-Agent')
+    return '<p>Your browseris %s</p>' % user_agent
