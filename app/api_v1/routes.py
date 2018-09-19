@@ -47,7 +47,5 @@ def hello():
 def hello():
     return "hi there"
 
-@api_v1.route('/sema')
-def hello():
-    return "sema there"
+
 
